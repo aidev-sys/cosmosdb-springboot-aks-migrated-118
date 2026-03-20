@@ -1,15 +1,11 @@
 package com.azure.cosmosdb.demo;
 
-import jakarta.persistence.*;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Repository;
 
-@Entity
-@Table(name = "users")
 class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -50,6 +46,21 @@ class User {
 }
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public class UserRepository {
 
+    private final RabbitTemplate rabbitTemplate;
+    private final StreamBridge streamBridge;
+
+    public UserRepository(RabbitTemplate rabbitTemplate, StreamBridge streamBridge) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.streamBridge = streamBridge;
+    }
+
+    public void save(User user) {
+        rabbitTemplate.convertAndSend("user.exchange", "user.routing.key", user);
+    }
+
+    public void saveWithStreamBridge(User user) {
+        streamBridge.send("user-out-0", user);
+    }
 }

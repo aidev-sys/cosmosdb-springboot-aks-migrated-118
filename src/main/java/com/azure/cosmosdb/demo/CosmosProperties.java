@@ -1,6 +1,5 @@
 package com.azure.cosmosdb.demo;
 
-import jakarta.persistence.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "azure.cosmos")

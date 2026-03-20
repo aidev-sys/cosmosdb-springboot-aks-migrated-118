@@ -1,23 +1,15 @@
 package com.azure.cosmosdb.demo;
 
-import jakarta.persistence.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.List;
 
-@Entity
-@Table(name = "cosmos_data")
 class CosmosData {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String data;
 
     public CosmosData() {}
@@ -43,13 +35,12 @@ class CosmosData {
     }
 }
 
-interface CosmosDataRepository extends JpaRepository<CosmosData, Long> {
+interface CosmosDataRepository {
     List<CosmosData> findByDataContaining(String data);
 }
 
 @Configuration
 @EnableConfigurationProperties(CosmosProperties.class)
-@EnableJpaRepositories(basePackageClasses = CosmosDataRepository.class)
 @PropertySource("classpath:application.properties")
 public class CosmosSpringConfiguration {
 
