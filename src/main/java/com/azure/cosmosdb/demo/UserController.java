@@ -7,11 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import com.azure.cosmos.models.PartitionKey;
 
 @Controller
 @RequestMapping(path = "/users")
@@ -38,7 +37,7 @@ public class UserController {
 
         System.out.println("searching user " + email);
 
-        Optional<User> maybe = users.findById(email, new PartitionKey(email));
+        Optional<User> maybe = users.findById(email);
         return maybe.isPresent() ? new ResponseEntity<User>(maybe.get(), HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -59,7 +58,7 @@ public class UserController {
 
         System.out.println("replacing user " + user.getEmail());
 
-        Optional<User> maybe = users.findById(user.getEmail(), new PartitionKey(user.getEmail()));
+        Optional<User> maybe = users.findById(user.getEmail());
         if (!maybe.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -73,7 +72,7 @@ public class UserController {
 
         System.out.println("deleting user " + email);
 
-        users.deleteById(email, new PartitionKey(email));
+        users.deleteById(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

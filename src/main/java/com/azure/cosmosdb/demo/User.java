@@ -1,16 +1,22 @@
 package com.azure.cosmosdb.demo;
 
-import com.azure.spring.data.cosmos.core.mapping.Container;
-import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 
-@Container(containerName = "users")
+@Entity
+@Table(name = "users")
 public class User {
     @Id
-    @PartitionKey
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "email")
     private String email;
+    
+    @Column(name = "first_name")
     private String firstName;
+    
+    @Column(name = "last_name")
     private String lastName;
+    
+    @Column(name = "city")
     private String city;
 
     public User() {
@@ -60,5 +66,4 @@ public class User {
     public String toString() {
         return "User [city=" + city + ", email=" + email + ", firstName=" + firstName + ", lastName=" + lastName + "]";
     }
-
 }

@@ -1,76 +1,66 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
 package com.azure.cosmosdb.demo;
 
-import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.DirectConnectionConfig;
-import com.azure.cosmos.GatewayConnectionConfig;
-import com.azure.spring.data.cosmos.config.AbstractCosmosConfiguration;
-import com.azure.spring.data.cosmos.config.CosmosConfig;
-import com.azure.spring.data.cosmos.core.ResponseDiagnostics;
-import com.azure.spring.data.cosmos.core.ResponseDiagnosticsProcessor;
-import com.azure.spring.data.cosmos.repository.config.EnableCosmosRepositories;
-import com.azure.spring.data.cosmos.repository.config.EnableReactiveCosmosRepositories;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.persistence.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.lang.Nullable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import java.util.List;
+
+@Entity
+@Table(name = "cosmos_data")
+class CosmosData {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String data;
+
+    public CosmosData() {}
+
+    public CosmosData(String data) {
+        this.data = data;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+}
+
+interface CosmosDataRepository extends JpaRepository<CosmosData, Long> {
+    List<CosmosData> findByDataContaining(String data);
+}
 
 @Configuration
 @EnableConfigurationProperties(CosmosProperties.class)
-@EnableCosmosRepositories
-@EnableReactiveCosmosRepositories
+@EnableJpaRepositories(basePackageClasses = CosmosDataRepository.class)
 @PropertySource("classpath:application.properties")
-public class CosmosSpringConfiguration extends AbstractCosmosConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(CosmosSpringConfiguration.class);
+public class CosmosSpringConfiguration {
 
-    private CosmosProperties properties;
+    private final CosmosProperties properties;
 
-    CosmosSpringConfiguration(CosmosProperties properties){
+    public CosmosSpringConfiguration(CosmosProperties properties) {
         this.properties = properties;
     }
 
     @Bean
-    public CosmosClientBuilder cosmosBuildClient() {
-        DirectConnectionConfig directConnectionConfig = DirectConnectionConfig.getDefaultConfig();
-        
-        //use this for gateway connection
-        GatewayConnectionConfig gatewayConnectionConfig = GatewayConnectionConfig.getDefaultConfig(); 
-
-        return new CosmosClientBuilder()
-            .endpoint(properties.getUri())
-            .key(properties.getKey())
-            .directMode(directConnectionConfig);
-    }
-
-    @Bean
-    public CosmosConfig cosmosConfig() {
-        return CosmosConfig.builder()
-                           .responseDiagnosticsProcessor(new ResponseDiagnosticsProcessorImplementation(this.properties))
-                           .enableQueryMetrics(properties.isQueryMetricsEnabled())
-                           .build();
-    }
-
-    private static class ResponseDiagnosticsProcessorImplementation implements ResponseDiagnosticsProcessor {
-
-        private CosmosProperties properties;
-        ResponseDiagnosticsProcessorImplementation(CosmosProperties properties){
-            this.properties = properties;
-        }
-
-        @Override
-        public void processResponseDiagnostics(@Nullable ResponseDiagnostics responseDiagnostics) {
-            if(this.properties.isResponseDiagnosticsEnabled()){
-                logger.info("Response Diagnostics {}", responseDiagnostics);
-            }
-        }
-    }
-
-    @Override
-    protected String getDatabaseName() {
+    public String cosmosDatabaseName() {
         return properties.getDatabase();
     }
 }

@@ -1,7 +1,6 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
 package com.azure.cosmosdb.demo;
 
+import jakarta.persistence.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "azure.cosmos")
@@ -18,8 +17,6 @@ public class CosmosProperties {
     private boolean queryMetricsEnabled;
 
     private boolean responseDiagnosticsEnabled;
-
-
 
     public String getUri() {
         return uri;
