@@ -45,7 +45,7 @@ class User {
 }
 
 @Repository
-public class UserRepository {
+class UserRepository {
 
     private final RabbitTemplate rabbitTemplate;
 
